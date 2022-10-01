@@ -15,7 +15,9 @@ public class SpringSecurityConfig {
 	//This has to happen for formLogin(request that come through browsers through login form) as well as for httpBasic login(request that have Basic Auth as Authorization in Postman)
 	@Bean
 	SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-		http.authorizeRequests().anyRequest().authenticated();
+		http.authorizeRequests().antMatchers("/accountInfo").authenticated();
+		http.authorizeRequests().antMatchers("/myCards").authenticated();
+		http.authorizeRequests().antMatchers("/contact","/welcome").permitAll();
 		http.formLogin();
 		http.httpBasic();
 		return http.build();
