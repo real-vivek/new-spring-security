@@ -1,13 +1,14 @@
 package com.real.vivek.config;
 
+import javax.sql.DataSource;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -29,28 +30,11 @@ public class SpringSecurityConfig {
 		return http.build();
 	}
 	
+	//Spring will automatically inject data source which is present in class path in out case it was h2 database
+	//When running the app it will run the schema.sql create the tables specified in it and then run data.sql to populate data in those tables
+	//We have used the default schema here however we can have our own custom schemas
 	@Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-		//If we use below config we will not have to provide bean of type PasswordEncoder
-		UserDetails admin = User.withDefaultPasswordEncoder()
-                .username("admin")
-                .password("12345")
-                .authorities("admin")
-                .roles("ADMIN")//Here we add ADMIN role to this user
-                .build();
-		//However for below config we have to provide to create bean of type PasswordEncoder and register it with spring
-        UserDetails user = User.builder()
-                .username("user")
-                .password("12345")
-                .authorities("read")
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(admin, user);
-	}
-	
-	//NoOpPasswordEncoder is not recommended for production usage.
-	@Bean
-	public PasswordEncoder getPasswordEncoder() {
-		return NoOpPasswordEncoder.getInstance();
+	 public UserDetailsService userDetailsService(DataSource dataSource) {
+		  return new JdbcUserDetailsManager(dataSource);
 	}
 }
