@@ -15,9 +15,9 @@ public class SpringSecurityConfig {
 	//This has to happen for formLogin(request that come through browsers through login form) as well as for httpBasic login(request that have Basic Auth as Authorization in Postman)
 	@Bean
 	SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/accountInfo").authenticated();
-		http.authorizeRequests().antMatchers("/myCards").authenticated();
-		http.authorizeRequests().antMatchers("/contact","/welcome").permitAll();
+		//Example of denying all any request that comes to out application
+		//We get 403 forbidden when we try to hit any endpoint
+		http.authorizeRequests().anyRequest().denyAll();
 		http.formLogin();
 		http.httpBasic();
 		return http.build();
