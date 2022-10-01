@@ -20,8 +20,9 @@ public class SpringSecurityConfig {
 	//This has to happen for formLogin(request that come through browsers through login form) as well as for httpBasic login(request that have Basic Auth as Authorization in Postman)
 	@Bean
 	SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/accountInfo").authenticated();
-		http.authorizeRequests().antMatchers("/myCards").authenticated();
+		// Remember to go from most restrictive to least restrictive role
+		http.authorizeRequests().antMatchers("/accountInfo").hasAnyRole("USER","ADMIN");//accountInfo can be accessed by User having role USER or ADMIN
+		http.authorizeRequests().antMatchers("/myCards").hasRole("USER");//myCards can be accessed by User having role USER
 		http.authorizeRequests().antMatchers("/contact","/welcome").permitAll();
 		http.formLogin();
 		http.httpBasic();
@@ -35,12 +36,14 @@ public class SpringSecurityConfig {
                 .username("admin")
                 .password("12345")
                 .authorities("admin")
+                .roles("ADMIN")//Here we add ADMIN role to this user
                 .build();
 		//However for below config we have to provide to create bean of type PasswordEncoder and register it with spring
         UserDetails user = User.builder()
                 .username("user")
                 .password("12345")
                 .authorities("read")
+                .roles("USER")
                 .build();
         return new InMemoryUserDetailsManager(admin, user);
 	}
