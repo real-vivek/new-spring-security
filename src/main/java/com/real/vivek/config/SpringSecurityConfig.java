@@ -5,10 +5,9 @@ import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -32,9 +31,19 @@ public class SpringSecurityConfig {
 	
 	//Spring will automatically inject data source which is present in class path in out case it was h2 database
 	//When running the app it will run the schema.sql create the tables specified in it and then run data.sql to populate data in those tables
-	//We have used the default schema here however we can have our own custom schemas
+	//We have used custom schema here so we need to tell how to query User by User by UserName and Authorities
 	@Bean
-	 public UserDetailsService userDetailsService(DataSource dataSource) {
-		  return new JdbcUserDetailsManager(dataSource);
+	 public JdbcDaoImpl jdbcDaoImpl(DataSource dataSource) {
+		JdbcDaoImpl jdbcDaoImpl = new JdbcDaoImpl();
+		jdbcDaoImpl.setDataSource(dataSource);
+		jdbcDaoImpl.setUsersByUsernameQuery("select uname,pass,enabled from my_users where uname = ?");
+		jdbcDaoImpl.setAuthoritiesByUsernameQuery("select uname,authority from my_authorities where uname = ?");
+		return jdbcDaoImpl;
+	}
+	
+	//NoOpPasswordEncoder is not recommended for production usage.
+	@Bean
+	public PasswordEncoder getPasswordEncoder() {
+		return NoOpPasswordEncoder.getInstance();
 	}
 }
