@@ -1,11 +1,9 @@
 package com.real.vivek.config;
 
-import javax.sql.DataSource;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -29,17 +27,12 @@ public class SpringSecurityConfig {
 		return http.build();
 	}
 	
-	//Spring will automatically inject data source which is present in class path in out case it was h2 database
-	//When running the app it will run the schema.sql create the tables specified in it and then run data.sql to populate data in those tables
-	//We have used custom schema here so we need to tell how to query User by User by UserName and Authorities
+	//We have implemented our own custom user details service so no need to create bean of UserDetailsManager interface
+	//Since H2 has it's own authentication provider, you can skip the Spring Security for the path of h2 console entirely in the same way that you do for your static content
 	@Bean
-	 public JdbcDaoImpl jdbcDaoImpl(DataSource dataSource) {
-		JdbcDaoImpl jdbcDaoImpl = new JdbcDaoImpl();
-		jdbcDaoImpl.setDataSource(dataSource);
-		jdbcDaoImpl.setUsersByUsernameQuery("select uname,pass,enabled from my_users where uname = ?");
-		jdbcDaoImpl.setAuthoritiesByUsernameQuery("select uname,authority from my_authorities where uname = ?");
-		return jdbcDaoImpl;
-	}
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().antMatchers("/h2-console/**");
+    }
 	
 	//NoOpPasswordEncoder is not recommended for production usage.
 	@Bean
