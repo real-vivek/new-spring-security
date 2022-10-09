@@ -1,5 +1,9 @@
 package com.real.vivek.config;
 
+import java.util.Collections;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,6 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 public class SpringSecurityConfig {
@@ -18,7 +24,26 @@ public class SpringSecurityConfig {
 	//This has to happen for formLogin(request that come through browsers through login form) as well as for httpBasic login(request that have Basic Auth as Authorization in Postman)
 	@Bean
 	SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-		// Remember to go from most restrictive to least restrictive role
+		
+		//CORS is not security attack but default protection provided by browsers to stop sharing data b/w different origins
+		//Here we are configuring CORS globally for entire application
+		//We can configure CROS for a particular controller using @CrossOrigin(origins="*")
+		http.cors().configurationSource(new CorsConfigurationSource() {
+			
+			@Override
+			public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+				CorsConfiguration configuration = new CorsConfiguration();
+				configuration.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+				configuration.setAllowedMethods(Collections.singletonList("*"));//We are allowing all HTTP Methods
+				configuration.setAllowedHeaders(Collections.singletonList("*"));//We are allowing all headers
+				configuration.setAllowCredentials(true);//We are allowing 
+				configuration.setMaxAge(3600L);//We are telling that browser will be allowed to remember this configuration for 1 hr(3600 sec) after this the browser has to do the pre flight check again
+				return configuration;
+			}
+		});
+		//CSRF is a security attack where the hacker tries to change user data without consent of user
+		//Below is configuration for disabling the CSRF security
+		http.csrf().disable();
 		http.authorizeRequests().antMatchers("/accountInfo").hasAnyRole("USER","ADMIN");//accountInfo can be accessed by User having role USER or ADMIN
 		http.authorizeRequests().antMatchers("/myCards").hasRole("USER");//myCards can be accessed by User having role USER
 		http.authorizeRequests().antMatchers("/contact","/welcome").permitAll();
