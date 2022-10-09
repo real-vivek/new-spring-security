@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -48,7 +47,7 @@ public class SpringSecurityConfig {
 		//We don't have POST or PUT operation in this application so we will not be able to validate these changes
 //		http.csrf().ignoringAntMatchers("/register").csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 		http.authorizeRequests().antMatchers("/accountInfo").hasAnyRole("USER","ADMIN");//accountInfo can be accessed by User having role USER or ADMIN
-		http.authorizeRequests().antMatchers("/myCards").hasRole("USER");//myCards can be accessed by User having role USER
+		http.authorizeRequests().antMatchers("/myCards").hasAuthority("READ_WRITE_CARDS");//myCards can be accessed by users having authorities READ_WRITE_CARDS only
 		http.authorizeRequests().antMatchers("/contact","/welcome").permitAll();
 		http.formLogin();
 		http.httpBasic();

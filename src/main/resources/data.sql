@@ -5,3 +5,5 @@ insert into my_authorities(uname,authority) values('user','ROLE_USER');
 insert into my_authorities(uname,authority) values('root','ROLE_ADMIN');
 
 insert into customer(id,email,pwd,role) values(123,'real-vivek@github.com','$2a$12$vSr1aoQh.GqIqkaKzd5J5OBCJzHdQNxydNKFxSqLCmeqHtpn1JJKG','ROLE_ADMIN');
+
+insert into customer_authorities(auth_id,id,authority_name) values(1,123,'READ_WRITE_CARDS');

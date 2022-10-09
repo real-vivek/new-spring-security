@@ -2,6 +2,7 @@ package com.real.vivek.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -12,10 +13,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
+import com.real.vivek.beans.Authority;
 import com.real.vivek.beans.Customer;
 import com.real.vivek.repo.CustomerRepository;
 
+@Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
 	@Autowired
@@ -31,9 +35,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		List<Customer> customers = customerRepository.findByEmail(username);
 		if (customers.size() > 0) {
 			if (passwordEncoder.matches(pwd, customers.get(0).getPwd())) {
-				List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-				authorities.add(new SimpleGrantedAuthority(customers.get(0).getRole()));
-				return new UsernamePasswordAuthenticationToken(username, pwd, authorities);
+				return new UsernamePasswordAuthenticationToken(username, pwd, getGrantedAuthorities(customers.get(0).getAuthorities()));
 			}else {
 				throw new BadCredentialsException("Invalid password");
 			}
@@ -45,6 +47,15 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
+	}
+	
+	//If we pass set of authorities from backend db, this helper method will read each authorities from this set and then create object of SimpleGrantedAuthority by passing name of authority inside it's constructor 
+	private List<GrantedAuthority> getGrantedAuthorities(Set<Authority> authorities){
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
+		for (Authority authority: authorities) {
+			grantedAuthorities.add(new SimpleGrantedAuthority(authority.getAuthorityName()));		
+		}
+		return grantedAuthorities;
 	}
 
 }
