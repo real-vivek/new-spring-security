@@ -26,6 +26,8 @@ public class MultiTableDetailsService implements UserDetailsService{
 	@Autowired
 	private DataSource dataSource;
 	
+	//The DAOAuthenticationProvider will call userdetailsService.loadUsername so in our case the DAO Authentication will call the below method and return UserDetails object
+	//The DAOAuthenticationProvider will then convert this UserDetails object to Authentication object 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		//Here we handle logic to where to divert which call
