@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -27,7 +28,7 @@ public class SpringSecurityConfig {
 		
 		//CORS is not security attack but default protection provided by browsers to stop sharing data b/w different origins
 		//Here we are configuring CORS globally for entire application
-		//We can configure CROS for a particular controller using @CrossOrigin(origins="*")
+		//We can configure CORS for a particular controller using @CrossOrigin(origins="*")
 		http.cors().configurationSource(new CorsConfigurationSource() {
 			
 			@Override
@@ -42,8 +43,10 @@ public class SpringSecurityConfig {
 			}
 		});
 		//CSRF is a security attack where the hacker tries to change user data without consent of user
-		//Below is configuration for disabling the CSRF security
-		http.csrf().disable();
+		//Below is configuration for disabling the CSRF security for some post "/register" endpoint(we don't ahve this endpoint)
+		//Whenever we are creating cookie withHttpOnlyFalse, client application will also be able to read the cookie and send it in header or body payload
+		//We don't have POST or PUT operation in this application so we will not be able to validate these changes
+//		http.csrf().ignoringAntMatchers("/register").csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 		http.authorizeRequests().antMatchers("/accountInfo").hasAnyRole("USER","ADMIN");//accountInfo can be accessed by User having role USER or ADMIN
 		http.authorizeRequests().antMatchers("/myCards").hasRole("USER");//myCards can be accessed by User having role USER
 		http.authorizeRequests().antMatchers("/contact","/welcome").permitAll();
