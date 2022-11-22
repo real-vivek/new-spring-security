@@ -23,6 +23,7 @@ import com.real.vivek.beans.Authority;
 import com.real.vivek.beans.Customer;
 import com.real.vivek.repo.CustomerRepository;
 
+//The implementation below is generally provided by DAOAuthenticatioProvider which is also converts the UserDetails object to Authentication
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 

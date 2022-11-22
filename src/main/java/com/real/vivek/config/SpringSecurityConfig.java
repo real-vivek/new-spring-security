@@ -11,8 +11,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+
+import com.real.vivek.filter.RequestValidationFilter;
 
 @Configuration
 public class SpringSecurityConfig {
@@ -40,12 +43,14 @@ public class SpringSecurityConfig {
 				configuration.setMaxAge(3600L);//We are telling that browser will be allowed to remember this configuration for 1 hr(3600 sec) after this the browser has to do the pre flight check again
 				return configuration;
 			}
-		});
+		})
 		//CSRF is a security attack where the hacker tries to change user data without consent of user
 		//Below is configuration for disabling the CSRF security for some post "/register" endpoint(we don't ahve this endpoint)
 		//Whenever we are creating cookie withHttpOnlyFalse, client application will also be able to read the cookie and send it in header or body payload
 		//We don't have POST or PUT operation in this application so we will not be able to validate these changes
 //		http.csrf().ignoringAntMatchers("/register").csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+		//Example of injecting custom filter(RequestValidationFilter) before BasicAuthenticationFilter 
+		.and().addFilterBefore(new RequestValidationFilter(), BasicAuthenticationFilter.class);
 		http.authorizeRequests().antMatchers("/accountInfo").hasAnyRole("USER","ADMIN");//accountInfo can be accessed by User having role USER or ADMIN
 		http.authorizeRequests().antMatchers("/myCards").hasAuthority("READ_WRITE_CARDS");//myCards can be accessed by users having authorities READ_WRITE_CARDS only
 		http.authorizeRequests().antMatchers("/contact","/welcome").permitAll();
