@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import com.real.vivek.filter.AuthoritiesLoggingFilter;
 import com.real.vivek.filter.RequestValidationFilter;
 
 @Configuration
@@ -50,7 +51,9 @@ public class SpringSecurityConfig {
 		//We don't have POST or PUT operation in this application so we will not be able to validate these changes
 //		http.csrf().ignoringAntMatchers("/register").csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 		//Example of injecting custom filter(RequestValidationFilter) before BasicAuthenticationFilter 
-		.and().addFilterBefore(new RequestValidationFilter(), BasicAuthenticationFilter.class);
+		.and().addFilterBefore(new RequestValidationFilter(), BasicAuthenticationFilter.class)
+		//Example of injecting custom filter(AuthoritiesLoggingFilter) after BasicAuthenticationFilter we can validate by logging all the which filters executed
+		.addFilterAfter(new AuthoritiesLoggingFilter(), BasicAuthenticationFilter.class);
 		http.authorizeRequests().antMatchers("/accountInfo").hasAnyRole("USER","ADMIN");//accountInfo can be accessed by User having role USER or ADMIN
 		http.authorizeRequests().antMatchers("/myCards").hasAuthority("READ_WRITE_CARDS");//myCards can be accessed by users having authorities READ_WRITE_CARDS only
 		http.authorizeRequests().antMatchers("/contact","/welcome").permitAll();
