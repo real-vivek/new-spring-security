@@ -1,0 +1,8 @@
+1.	First enter the URL(http://localhost:8080/accountInfo) in postman
+2.	Select Authorization tab in postman and select Basic Authentication
+3.	Enter Username(root) and Password(****) and send the request
+4.	If the request is successful, in the response header we will get a header(Authorization) with JWT
+5.	Copy that header value and for the next request select Authorization as Bearer Token in Postman's Authorization tab
+6.	Paste the copied token value in the token input box and send the request to get Authenticated/Authorized using JWT
+7.	Follow the same steps from step 4  for subsequent request
+8.	To make sure that we are getting authenticated and authorized using jwt we can modify the token and confirm that we get error saying "org.springframework.security.authentication.BadCredentialsException: Invalid Token received"

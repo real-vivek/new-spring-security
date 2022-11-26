@@ -1,0 +1,4 @@
+1.	If we are using front end application as client then the front end would have to send the credentials to our back end when log in for first time
+2.	Once we get the credentials in our back end app, user is authenticated and we generate token and set it response header
+3.	We have to make changes in our front end application to accept this token from header and send it in each subsequent request
+4.	In short we would have to configure front end app to send credentials for the first time it makes request to back end and in the subsequent request it should only send the token that it gets from the response headers from back end app
